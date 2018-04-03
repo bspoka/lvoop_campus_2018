@@ -94,63 +94,63 @@ __declspec(dllexport) void __cdecl picoquant_parse_records(UINT32 *fifo_buffer, 
 			}
 
 		}
+	}
 
-		if (device == 1) { //picoharp
-			if (tmode == 2) { // picoharp T2 mode
-				for (int ind = 0; ind < fifo_size; ind++)
+	if (device == 1) { //picoharp
+		if (tmode == 2) { // picoharp T2 mode
+			for (int ind = 0; ind < fifo_size; ind++)
+			{
+				curr_record = fifo_buffer[ind];
+				dtime = curr_record & 268435455;
+				channel = (curr_record >> 28) & 15;
+				UINT64 timetag = overflow_correction + dtime;
+
+				if ((channel >= 0) && (channel <= 4)) // normal record
 				{
-					curr_record = fifo_buffer[ind];
-					dtime = curr_record & 268435455;
-					channel = (curr_record >> 28) & 15;
-					UINT64 timetag = overflow_correction + dtime;
-
-					if ((channel >= 0) && (channel <= 4)) // normal record
-					{
-						photon_times[total_photons] = timetag;
-						channels[total_photons] = (UINT8)channel;
-						total_photons++;
-					}
-					else
-					{
-						if (channel == 15) {
-							UINT32 markers = curr_record & 15;
-							if (markers == 0)
-								overflow_correction += 210698240;
-						}
+					photon_times[total_photons] = timetag*4; //4 ps resolution on the picoharp
+					channels[total_photons] = (UINT8)channel;
+					total_photons++;
+				}
+				else
+				{
+					if (channel == 15) {
+						UINT32 markers = curr_record & 15;
+						if (markers == 0)
+							overflow_correction += 210698240;
 					}
 				}
-
 			}
 
-			if (tmode == 3) { //Picoharp T3 mode
-				UINT32 nsync;
-				for (int ind = 0; ind < fifo_size; ind++)
-				{
-					curr_record = fifo_buffer[ind];
-					dtime = (curr_record >> 16) & 4095;
-					channel = (curr_record >> 28) & 15;
-					nsync = curr_record & 65535;
-
-					if ((channel >= 1) && (channel <= 4)) { //normal record
-						photon_times[total_photons] = dtime;
-						channels[total_photons] = (UINT8)channel;
-						sync[total_photons] = overflow_correction + nsync;
-					}
-					else {
-						if (channel == 15) {
-							UINT32 markers = (curr_record >> 16) & 15;
-							if (markers == 0)
-								overflow_correction += 65536; //overflow
-						}
-					}
-
-				}
-			}
 		}
 
-		*photon_count = total_photons;
-		*overflow = overflow_correction;
+		if (tmode == 3) { //Picoharp T3 mode
+			UINT32 nsync;
+			for (int ind = 0; ind < fifo_size; ind++)
+			{
+				curr_record = fifo_buffer[ind];
+				dtime = (curr_record >> 16) & 4095;
+				channel = (curr_record >> 28) & 15;
+				nsync = curr_record & 65535;
+
+				if ((channel >= 1) && (channel <= 4)) { //normal record
+					photon_times[total_photons] = dtime*4;
+					channels[total_photons] = (UINT8)channel;
+					sync[total_photons] = overflow_correction + nsync;
+				}
+				else {
+					if (channel == 15) {
+						UINT32 markers = (curr_record >> 16) & 15;
+						if (markers == 0)
+							overflow_correction += 65536; //overflow
+					}
+				}
+
+			}
+		}
 	}
+
+	*photon_count = total_photons;
+	*overflow = overflow_correction;
 }
 
 //this function splits the photonstream into channels
