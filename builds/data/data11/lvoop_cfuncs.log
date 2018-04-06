@@ -1,0 +1,5 @@
+﻿  stdafx.cpp
+  dllmain.cpp
+  lvoop_cfuncs.cpp
+     Creating library C:\Users\MX-Microscope\Documents\LabVIEW Data\lvoop_campus_2018\lvoop_dll-master\lvoop_cfuncs\Debug\lvoop_cfuncs.lib and object C:\Users\MX-Microscope\Documents\LabVIEW Data\lvoop_campus_2018\lvoop_dll-master\lvoop_cfuncs\Debug\lvoop_cfuncs.exp
+  lvoop_cfuncs.vcxproj -> C:\Users\MX-Microscope\Documents\LabVIEW Data\lvoop_campus_2018\lvoop_dll-master\lvoop_cfuncs\Debug\lvoop_cfuncs.dll
